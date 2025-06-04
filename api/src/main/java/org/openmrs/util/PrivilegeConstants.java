@@ -591,4 +591,10 @@ public class PrivilegeConstants {
 
 	@AddOnStartup(description = "Able to delete Medication Dispenses")
 	public static final String DELETE_MEDICATION_DISPENSE = "Delete Medication Dispense";
+
+	public static final String PROVIDER_MANAGEMENT_API_PRIVILEGE = "Provider Management API";
+
+	public static final String PROVIDER_MANAGEMENT_API_READ_ONLY_PRIVILEGE = "Provider Management API - Read-only";
+
+	public static final String GP_RESTRICTED_ROLES = "providermanagement.restrictedRoles";
 }
