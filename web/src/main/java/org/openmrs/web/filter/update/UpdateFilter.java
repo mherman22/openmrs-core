@@ -110,6 +110,8 @@ public class UpdateFilter extends StartupFilter {
 	 */
 	private static Boolean lockReleased = false;
 	
+	private static final String AUTHENTICATED_KEY = "updateFilter.authenticated";
+	
 	/**
 	 * Called by {@link #doFilter(ServletRequest, ServletResponse, FilterChain)} on GET requests
 	 *
@@ -142,6 +144,13 @@ public class UpdateFilter extends StartupFilter {
 		final String updJobStatus = "updateJobStarted";
 		String page = httpRequest.getParameter("page");
 		Map<String, Object> referenceMap = new HashMap<>();
+		
+		// Restore authentication state from session if it exists
+		Boolean sessionAuth = (Boolean) httpRequest.getSession().getAttribute(AUTHENTICATED_KEY);
+		if (sessionAuth != null) {
+			authenticatedSuccessfully = sessionAuth;
+		}
+		
 		if (httpRequest.getSession().getAttribute(FilterUtil.LOCALE_ATTRIBUTE) != null) {
 			referenceMap.put(FilterUtil.LOCALE_ATTRIBUTE,
 			    httpRequest.getSession().getAttribute(FilterUtil.LOCALE_ATTRIBUTE));
@@ -158,6 +167,8 @@ public class UpdateFilter extends StartupFilter {
 				log.debug("Authentication successful.  Redirecting to 'reviewupdates' page.");
 				// set a variable so we know that the user started here
 				authenticatedSuccessfully = true;
+				// Store authentication state in session
+				httpRequest.getSession().setAttribute(AUTHENTICATED_KEY, true);
 				
 				//Set variable to tell us whether updates are already in progress
 				referenceMap.put("isDatabaseUpdateInProgress", isDatabaseUpdateInProgress);
@@ -243,6 +254,13 @@ public class UpdateFilter extends StartupFilter {
 			httpResponse.setContentType("text/json");
 			httpResponse.setHeader("Cache-Control", "no-cache");
 			Map<String, Object> result = new HashMap<>();
+			
+			// Check if we're in the middle of an update
+			if (isDatabaseUpdateInProgress) {
+				// If updates are in progress, maintain the authenticated state
+				authenticatedSuccessfully = true;
+			}
+			
 			if (updateJob != null) {
 				result.put("hasErrors", updateJob.hasErrors());
 				if (updateJob.hasErrors()) {
