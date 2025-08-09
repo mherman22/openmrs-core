@@ -34,7 +34,6 @@
 		<mapping resource="org/openmrs/api/db/hibernate/ConceptMap.hbm.xml" />
 		<mapping resource="org/openmrs/api/db/hibernate/ConceptStopWord.hbm.xml" />
 		<mapping resource="org/openmrs/api/db/hibernate/ConceptReferenceTerm.hbm.xml" />
-		<mapping resource="org/openmrs/api/db/hibernate/ConceptReferenceTermMap.hbm.xml" />
 		<mapping resource="org/openmrs/api/db/hibernate/DiagnosisAttribute.hbm.xml" />
 		<mapping resource="org/openmrs/api/db/hibernate/DiagnosisAttributeType.hbm.xml" />
 		<mapping resource="org/openmrs/api/db/hibernate/Drug.hbm.xml" />
@@ -61,7 +60,6 @@
 		<mapping resource="org/openmrs/api/db/hibernate/OrderSetMember.hbm.xml" />
 		<mapping resource="org/openmrs/api/db/hibernate/OrderSetAttributeType.hbm.xml" />
 		<mapping resource="org/openmrs/api/db/hibernate/OrderSetAttribute.hbm.xml" />
-		<mapping resource="org/openmrs/api/db/hibernate/OrderGroup.hbm.xml" />
 		<mapping resource="org/openmrs/api/db/hibernate/OrderGroupAttribute.hbm.xml" />
 		<mapping resource="org/openmrs/api/db/hibernate/OrderGroupAttributeType.hbm.xml" />
 		<mapping resource="org/openmrs/api/db/hibernate/CareSetting.hbm.xml" />
@@ -81,7 +79,6 @@
 		<mapping resource="org/openmrs/hl7/db/hibernate/HL7InQueue.hbm.xml" />
 
 		<!-- Notification -->
-		<mapping resource="org/openmrs/notification/db/hibernate/Template.hbm.xml" />
 		<mapping resource="org/openmrs/notification/db/hibernate/Alert.hbm.xml" />
 		
 
