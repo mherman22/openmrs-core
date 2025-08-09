@@ -103,6 +103,8 @@ public class InitializationFilter extends StartupFilter {
 	private static final String DATABASE_SQLSERVER = "sqlserver";
 	
 	private static final String DATABASE_H2 = "h2";
+
+	private static final String DATABASE_MARIADB = "mariadb";
 	
 	/**
 	 * The very first page of wizard, that asks user for select his preferred language
@@ -177,8 +179,10 @@ public class InitializationFilter extends StartupFilter {
 	/**
 	 * This tracks the properties that we use in the installation wizard. Properties not defined here will be copied
 	 * to the runtime properties, allowing us to pre-define certain runtime settings.
+	 * <p/>
+	 * NB The type here is "Object" to align with properties, even those all keys are and will likely be strings.
 	 */
-	private static final Set<String> INSTALLATION_WIZARD_PROPERTIES;
+	private static final Set<Object> INSTALLATION_WIZARD_PROPERTIES;
 	static {
 		INSTALLATION_WIZARD_PROPERTIES = new HashSet<>();
 		INSTALLATION_WIZARD_PROPERTIES.add("install_method");
@@ -348,7 +352,17 @@ public class InitializationFilter extends StartupFilter {
 	 * of the {@link InitializationWizardModel}.
 	 */
 	protected void initializeWizardFromResolvedPropertiesIfPresent() {
-		Properties script = resolveInitializationProperties();
+		Properties script = new Properties();
+
+		Properties installScript = getInstallationScript();
+		script.putAll(installScript);
+
+		getEnvironmentVariables().forEach((key, value) -> {
+			String normalizedKey = normalizeEnvVariableKey(key);
+			script.setProperty(normalizedKey, value);
+		});
+
+		System.getProperties().forEach((key, value) -> script.setProperty(key.toString(), value.toString()));
 
 		if (log.isDebugEnabled()) {
 			for (String key : script.stringPropertyNames()) {
@@ -362,6 +376,7 @@ public class InitializationFilter extends StartupFilter {
 			
 			wizardModel.databaseConnection = script.getProperty("connection.url", wizardModel.databaseConnection);
 			wizardModel.databaseDriver = script.getProperty("connection.driver_class", wizardModel.databaseDriver);
+			wizardModel.databaseName = script.getProperty("database_name", wizardModel.databaseName);
 			wizardModel.currentDatabaseUsername = script.getProperty("connection.username",
 				wizardModel.currentDatabaseUsername);
 			wizardModel.currentDatabasePassword = script.getProperty("connection.password",
@@ -400,7 +415,7 @@ public class InitializationFilter extends StartupFilter {
 			
 			wizardModel.adminUserPassword = script.getProperty("admin_user_password", wizardModel.adminUserPassword);
 			
-			for (Map.Entry<Object, Object> entry : script.entrySet()) {
+			for (Map.Entry<Object, Object> entry : installScript.entrySet()) {
 				if (!INSTALLATION_WIZARD_PROPERTIES.contains(entry.getKey())) {
 					wizardModel.additionalPropertiesFromInstallationScript.put(entry.getKey(), entry.getValue());
 				}
@@ -1569,15 +1584,6 @@ public class InitializationFilter extends StartupFilter {
 						if (StringUtils.hasText(wizardModel.databaseDriver)) {
 							runtimeProperties.put("connection.driver_class", wizardModel.databaseDriver);
 						}
-						if (finalDatabaseConnectionString.contains(DATABASE_POSTGRESQL)) {
-							runtimeProperties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-						}
-						if (finalDatabaseConnectionString.contains(DATABASE_SQLSERVER)) {
-							runtimeProperties.put("hibernate.dialect", "org.hibernate.dialect.SQLServerDialect");
-						}
-						if (finalDatabaseConnectionString.contains(DATABASE_H2)) {
-							runtimeProperties.put("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-						}
 						runtimeProperties.put("module.allow_web_admin", "" + wizardModel.moduleWebAdmin);
 						runtimeProperties.put("auto_update_database", "" + wizardModel.autoUpdateDatabase);
 						final Encoder base64 = Base64.getEncoder();
@@ -1967,29 +1973,6 @@ public class InitializationFilter extends StartupFilter {
 	private static boolean goBack(HttpServletRequest httpRequest) {
 		return "Back".equals(httpRequest.getParameter("back"))
 			|| (httpRequest.getParameter("back.x") != null && httpRequest.getParameter("back.y") != null);
-	}
-
-	/**
-	 * Resolves and merges initialization properties from multiple sources in the following order:
-	 * 1. install.properties (lowest priority)
-	 * 2. OS environment variables
-	 * 3. Java system properties (-Dkey=value) (highest priority)
-	 *
-	 * @return a merged {@link Properties} object with proper precedence.
-	 */
-	protected Properties resolveInitializationProperties() {
-		Properties merged = new Properties();
-
-		Properties installScript = getInstallationScript();
-		installScript.forEach((key, value) -> merged.setProperty(key.toString(), value.toString()));
-
-		getEnvironmentVariables().forEach((key, value) -> {
-			String normalizedKey = normalizeEnvVariableKey(key);
-			merged.setProperty(normalizedKey, value);
-		});
-
-		System.getProperties().forEach((key, value) -> merged.setProperty(key.toString(), value.toString()));
-		return merged;
 	}
 	
 	private String normalizeEnvVariableKey(String envVarKey) {

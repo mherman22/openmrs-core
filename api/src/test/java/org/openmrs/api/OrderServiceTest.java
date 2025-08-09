@@ -31,6 +31,8 @@ import org.openmrs.ConceptMapType;
 import org.openmrs.ConceptName;
 import org.openmrs.ConceptReferenceTerm;
 import org.openmrs.ConceptSource;
+import org.openmrs.ConceptStateConversion;
+import org.openmrs.ConceptReferenceTermMap;
 import org.openmrs.Condition;
 import org.openmrs.Diagnosis;
 import org.openmrs.Drug;
@@ -86,12 +88,14 @@ import org.openmrs.hl7.HL7InArchive;
 import org.openmrs.hl7.HL7InError;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.notification.AlertRecipient;
+import org.openmrs.notification.Template;
 import org.openmrs.order.OrderUtil;
 import org.openmrs.order.OrderUtilTest;
 import org.openmrs.orders.TimestampOrderNumberGenerator;
 import org.openmrs.parameter.OrderSearchCriteria;
 import org.openmrs.parameter.OrderSearchCriteriaBuilder;
 import org.openmrs.person.PersonMergeLog;
+import org.openmrs.scheduler.TaskDefinition;
 import org.openmrs.test.TestUtil;
 import org.openmrs.test.jupiter.BaseContextSensitiveTest;
 import org.openmrs.util.DateUtil;
@@ -2753,6 +2757,7 @@ public class OrderServiceTest extends BaseContextSensitiveTest {
 				.addAnnotatedClass(ProgramAttributeType.class)
 				.addAnnotatedClass(HL7InError.class)
 				.addAnnotatedClass(OrderType.class)
+			    .addAnnotatedClass(ConceptReferenceTermMap.class)
 				.addAnnotatedClass(ConceptAnswer.class)
 				.addAnnotatedClass(ConceptClass.class)
 				.addAnnotatedClass(FormResource.class)
@@ -2763,7 +2768,11 @@ public class OrderServiceTest extends BaseContextSensitiveTest {
 				.addAnnotatedClass(HL7InArchive.class)
 				.addAnnotatedClass(PersonMergeLog.class)
 				.addAnnotatedClass(ClobDatatypeStorage.class)
-        .addAnnotatedClass(ConceptSource.class)
+				.addAnnotatedClass(ConceptSource.class)
+        		.addAnnotatedClass(TaskDefinition.class)
+				.addAnnotatedClass(ConceptStateConversion.class)
+				.addAnnotatedClass(OrderGroup.class)
+				.addAnnotatedClass(Template.class)
 				.getMetadataBuilder().build();
 
 
